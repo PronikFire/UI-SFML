@@ -2,7 +2,7 @@
 
 namespace GUISFML
 {
-    class InputTextBox : GUIObject
+    public class InputTextBox : GUIObject
     {
         private Text _Text;
         private RectangleShape rectangle;
@@ -118,7 +118,8 @@ namespace GUISFML
                     if (CursorPos == 0)
                         break;
                     CursorPos--;
-                    Text = Text.Remove((int)CursorPos, 1);
+                    _Text.DisplayedString = (_Text.DisplayedString.Remove((int)CursorPos - FullText.IndexOf(_Text.DisplayedString), 1)).Substring(0, _Text.DisplayedString.Length);
+                    FullText = FullText.Remove((int)CursorPos, 1);
                     break;
                 case Keyboard.Key.Space:
                     _Text.DisplayedString = (_Text.DisplayedString.Insert((int)CursorPos - FullText.IndexOf(_Text.DisplayedString), " ")).Substring(0, _Text.DisplayedString.Length);
@@ -129,15 +130,11 @@ namespace GUISFML
                     if (CursorPos == 0)
                         break;
                     CursorPos--;
-                    if (CursorPos < FullText.IndexOf(_Text.DisplayedString))
-                        _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) - 1, _Text.DisplayedString.Length);
                     break;
                 case Keyboard.Key.Right:
                     if (CursorPos == Text.Length)
                         break;
                     CursorPos++;
-                    if (CursorPos > FullText.IndexOf(_Text.DisplayedString) + _Text.DisplayedString.Length)
-                        _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) + 1, _Text.DisplayedString.Length);
                     break;
                 default:
                     Console.WriteLine(CultureInfo.GetCultureInfo(Helper.GetKeyboardLayout()).Name);
@@ -145,7 +142,6 @@ namespace GUISFML
                     if (((int)e.Code < 0 || 57 <= (int)e.Code) || ((int)e.Code >= 36 && (int)e.Code <= 45))
                         break;
 
-                    var code = (int)e.Code;
                     if (!char.IsLetter(Alphabet[(int)e.Code]))
                         Text = Text.Insert((int)CursorPos, e.Shift ? Alphabet[(int)e.Code + ((int)e.Code > 45 ? 11 : 10)].ToString() : Alphabet[(int)e.Code].ToString());
                     else
@@ -153,6 +149,10 @@ namespace GUISFML
                     CursorPos++;
                     break;
             }
+            if (CursorPos < FullText.IndexOf(_Text.DisplayedString))
+                _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) - 1, _Text.DisplayedString.Length);
+            else if (CursorPos > FullText.IndexOf(_Text.DisplayedString) + _Text.DisplayedString.Length)
+                _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) + 1, _Text.DisplayedString.Length);
             CursorUpdate();
         }
 

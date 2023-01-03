@@ -2,7 +2,7 @@
 
 namespace GUISFML
 {
-    interface GUIObject
+    public interface GUIObject
     {
         public void Draw(RenderWindow window);
         public FloatRect GlobalRect
@@ -29,6 +29,7 @@ namespace GUISFML
             return (ushort)GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero));
         }
 
+        //Below is nothing but the alphabet
         public static char[] AlphabetEN { get; } = {
             'A',
             'B',

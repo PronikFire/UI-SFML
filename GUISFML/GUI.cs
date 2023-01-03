@@ -1,8 +1,8 @@
 ﻿namespace GUISFML
 {
-    class GUI
+    public class GUI
     {
-        private List<GUIObject> objects = new();
+        public List<GUIObject> objects { get; private set; } = new List<GUIObject>();
         private GUIObject SelectedObject = null;
 
         public GUI(RenderWindow window)
@@ -10,7 +10,7 @@
             AttachControl(window);
         }
 
-        void MouseBtnPress(object o, MouseButtonEventArgs e)
+        private void MouseBtnPress(object o, MouseButtonEventArgs e)
         {
             foreach (var obj in objects)
             {
@@ -32,7 +32,7 @@
             }
         }
 
-        void KeyBoardBtnPress(object o, KeyEventArgs e)
+        private void KeyBoardBtnPress(object o, KeyEventArgs e)
         {
             if (SelectedObject is null) return;
 
@@ -53,6 +53,7 @@
         }
 
         public void Delete(GUIObject obj) { objects.Remove(obj); }
+        public void Delete(int index) { objects.RemoveAt(index); }
         public void Add(GUIObject obj) { objects.Add(obj); }
 
         public void AttachControl(RenderWindow window)
