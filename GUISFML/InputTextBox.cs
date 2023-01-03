@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.InteropServices;
 
 namespace GUISFML
 {
@@ -142,7 +141,7 @@ namespace GUISFML
                     break;
                 default:
                     Console.WriteLine(CultureInfo.GetCultureInfo(Helper.GetKeyboardLayout()).Name);
-                    var Alphabet = CultureInfo.GetCultureInfo(Helper.GetKeyboardLayout()).Name == "ru-RU" ? GUI.AlphabetRU : GUI.AlphabetEN;
+                    var Alphabet = CultureInfo.GetCultureInfo(Helper.GetKeyboardLayout()).Name == "ru-RU" ? Helper.AlphabetRU : Helper.AlphabetEN;
                     if (((int)e.Code < 0 || 57 <= (int)e.Code) || ((int)e.Code >= 36 && (int)e.Code <= 45))
                         break;
 
