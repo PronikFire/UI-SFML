@@ -112,17 +112,19 @@ namespace GUISFML
 
         public void KeyboardAction(KeyEventArgs e)
         {
+            int xCam = -1;
             switch (e.Code)
             {
                 case Keyboard.Key.Backspace:
                     if (CursorPos == 0)
                         break;
                     CursorPos--;
-                    _Text.DisplayedString = (_Text.DisplayedString.Remove((int)CursorPos - FullText.IndexOf(_Text.DisplayedString), 1)).Substring(0, _Text.DisplayedString.Length);
+                    xCam = FullText.IndexOf(_Text.DisplayedString);
                     FullText = FullText.Remove((int)CursorPos, 1);
+                    Console.WriteLine(xCam);
                     break;
                 case Keyboard.Key.Space:
-                    _Text.DisplayedString = (_Text.DisplayedString.Insert((int)CursorPos - FullText.IndexOf(_Text.DisplayedString), " ")).Substring(0, _Text.DisplayedString.Length);
+                    xCam = FullText.IndexOf(_Text.DisplayedString);
                     FullText = FullText.Insert((int)CursorPos, " ");
                     CursorPos++;
                     break;
@@ -142,17 +144,36 @@ namespace GUISFML
                     if (((int)e.Code < 0 || 57 <= (int)e.Code) || ((int)e.Code >= 36 && (int)e.Code <= 45))
                         break;
 
+                    xCam = FullText.IndexOf(_Text.DisplayedString);
                     if (!char.IsLetter(Alphabet[(int)e.Code]))
-                        Text = Text.Insert((int)CursorPos, e.Shift ? Alphabet[(int)e.Code + ((int)e.Code > 45 ? 11 : 10)].ToString() : Alphabet[(int)e.Code].ToString());
+                        FullText = FullText.Insert((int)CursorPos, e.Shift ? Alphabet[(int)e.Code + ((int)e.Code > 45 ? 11 : 10)].ToString() : Alphabet[(int)e.Code].ToString());
                     else
-                        Text = Text.Insert((int)CursorPos, e.Shift ? Alphabet[(int)e.Code].ToString() : Alphabet[(int)e.Code].ToString().ToLower());
+                        FullText = FullText.Insert((int)CursorPos, e.Shift ? Alphabet[(int)e.Code].ToString() : Alphabet[(int)e.Code].ToString().ToLower());
+                    
                     CursorPos++;
                     break;
             }
-            if (CursorPos < FullText.IndexOf(_Text.DisplayedString))
-                _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) - 1, _Text.DisplayedString.Length);
-            else if (CursorPos > FullText.IndexOf(_Text.DisplayedString) + _Text.DisplayedString.Length)
-                _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) + 1, _Text.DisplayedString.Length);
+
+            //Мне было слишком лень делать всё по нормальному(сделал как смог)  :))
+            Text = FullText;
+            if (_Text.DisplayedString.Length != FullText.Length)
+            {
+                if (xCam != -1)
+                {
+                    if (xCam + _Text.DisplayedString.Length <= FullText.Length)
+                        _Text.DisplayedString = FullText.Substring(xCam, _Text.DisplayedString.Length);
+                    else if (xCam != 0)
+                        _Text.DisplayedString = FullText.Substring(xCam - 1, _Text.DisplayedString.Length);
+                    else
+                        _Text.DisplayedString = FullText.Substring(0, FullText.Length);
+                }
+
+                if (CursorPos < FullText.IndexOf(_Text.DisplayedString))
+                    _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) - 1, _Text.DisplayedString.Length);
+                else if (CursorPos > FullText.IndexOf(_Text.DisplayedString) + _Text.DisplayedString.Length)
+                    _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) + 1, _Text.DisplayedString.Length);
+            }
+
             CursorUpdate();
         }
 
@@ -163,7 +184,7 @@ namespace GUISFML
 
             if (e.X >= _Text.Position.X + (_Text.FindCharacterPos((uint)_Text.DisplayedString.Length).X + _Text.FindCharacterPos((uint)_Text.DisplayedString.Length - 1).X) / 2)
             {
-                CursorPos = (uint)_Text.DisplayedString.Length;
+                CursorPos = (uint)_Text.DisplayedString.Length + (uint)FullText.IndexOf(_Text.DisplayedString);
             }
             else
             {
@@ -171,7 +192,7 @@ namespace GUISFML
                 {
                     if ((i == 1 ? _Text.Position.X : _Text.Position.X + (_Text.FindCharacterPos(i - 1).X + _Text.FindCharacterPos(i - 2).X) / 2) <= e.X
                         && e.X < _Text.Position.X + (_Text.FindCharacterPos(i).X + _Text.FindCharacterPos(i - 1).X) / 2)
-                        CursorPos = i - 1;
+                        CursorPos = i - 1 + (uint)FullText.IndexOf(_Text.DisplayedString);
                 }
             }
             CursorUpdate();
