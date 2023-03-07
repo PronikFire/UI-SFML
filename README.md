@@ -4,4 +4,4 @@ This is an interface to SFML. I am not a professional and this is my first proje
 #CURRENTLY DOES NOT WORK NORMALLY
 
 PS Нужно сделать так чтобы буквы были внутри бокса, но блять мне так лень. :|
-PPS Это сдлелать можно но пиздец как некрасиво и мутарно. :||
+PPS Это сделать можно но пиздец как некрасиво и мутарно. :||
