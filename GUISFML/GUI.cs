@@ -2,13 +2,14 @@
 {
     public class GUI
     {
+        internal static Font Font = null;
+        public GUI(Font font)
+        {
+            Font = font;
+        }
+
         public List<GUIObject> objects { get; private set; } = new List<GUIObject>();
         private GUIObject SelectedObject = null;
-
-        public GUI(RenderWindow window)
-        {
-            AttachControl(window);
-        }
 
         private void MouseBtnPress(object o, MouseButtonEventArgs e)
         {

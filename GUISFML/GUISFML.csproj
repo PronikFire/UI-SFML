@@ -15,6 +15,7 @@
     <Using Include="SFML.Graphics" />
     <Using Include="SFML.System" />
     <Using Include="SFML.Window" />
+    <Using Include="System.Globalization" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using SFML.Graphics;
+using SFML.Window;
 
 namespace GUISFML
 {
@@ -8,8 +9,8 @@ namespace GUISFML
         private RectangleShape rectangle;
         private VertexArray line = new(PrimitiveType.Lines, 2);
         private uint CursorPos = 0;
-        private Color color = Color.White;
         private string FullText;
+        private int xCam = 0;
 
         public bool InFocus { get; set; }
 
@@ -35,18 +36,6 @@ namespace GUISFML
                 _Text.CharacterSize = (uint)value.Y;
             }
         }
-        public Color Color
-        {
-            get
-            {
-                return rectangle.FillColor;
-            }
-            set
-            {
-                rectangle.FillColor = value;
-                color = value;
-            }
-        }
         public string Text
         {
             get
@@ -56,20 +45,7 @@ namespace GUISFML
             set
             {
                 FullText = value;
-                _Text.DisplayedString = value;
-                if (_Text.Position.X + _Text.FindCharacterPos((uint)value.Length).X <= rectangle.Position.X + rectangle.Size.X)
-                    return;
-
-                uint i = 0;
-                do
-                {
-                    if (_Text.Position.X + _Text.FindCharacterPos((uint)value.Length - i).X <= rectangle.Position.X + rectangle.Size.X)
-                    {
-                        _Text.DisplayedString = value.Substring(0, value.Length - (int)i);
-                        break;
-                    }
-                    i++;
-                } while (i < value.Length);
+                UpdateTextElement();
             }
         }
         public FloatRect GlobalRect
@@ -80,10 +56,12 @@ namespace GUISFML
             }
         }
 
-        public InputTextBox(Font font, Vector2f size)
+        public InputTextBox(Vector2f size)
         {
             rectangle = new RectangleShape(size) { FillColor = Color.White };
-            _Text = new Text(null, font) { FillColor = Color.Black, Position = new Vector2f(2, -10), CharacterSize = (uint)size.Y };
+            if (GUI.Font == null)
+                throw new Exception("Объект был реализован раньше GUI");
+            _Text = new Text(null, GUI.Font) { FillColor = Color.Black, Position = new Vector2f(2, -10), CharacterSize = (uint)size.Y };
         }
 
         public void Draw(RenderWindow window)
@@ -95,7 +73,7 @@ namespace GUISFML
 
             rectangle.Size -= new Vector2f(6, 6);
             rectangle.Position += new Vector2f(3, 3);
-            rectangle.FillColor = color;
+            rectangle.FillColor = Color.White;
             window.Draw(rectangle);
 
             window.Draw(_Text);
@@ -106,25 +84,47 @@ namespace GUISFML
 
         private void CursorUpdate()
         {
-            line[0] = new Vertex(new Vector2f(_Text.Position.X + _Text.FindCharacterPos(CursorPos - (uint)FullText.IndexOf(_Text.DisplayedString)).X, rectangle.Position.Y + 5), Color.Black);
-            line[1] = new Vertex(new Vector2f(_Text.Position.X + _Text.FindCharacterPos(CursorPos - (uint)FullText.IndexOf(_Text.DisplayedString)).X, rectangle.Position.Y + rectangle.Size.Y - 5), Color.Black);
+            line[0] = new Vertex(new Vector2f(_Text.Position.X + _Text.FindCharacterPos(CursorPos - (uint)xCam).X, rectangle.Position.Y + 5), Color.Black);
+            line[1] = new Vertex(new Vector2f(_Text.Position.X + _Text.FindCharacterPos(CursorPos - (uint)xCam).X, rectangle.Position.Y + rectangle.Size.Y - 5), Color.Black);
+        }
+
+        private void UpdateTextElement(int start = 0)
+        {
+            _Text.DisplayedString = FullText.Substring(start);
+
+            int lastLength;
+            do
+            {
+                lastLength = _Text.DisplayedString.Length;
+                if (_Text.FindCharacterPos(CursorPos - (uint)xCam).X >= rectangle.Size.X)
+                {
+                    _Text.DisplayedString = _Text.DisplayedString.Remove(0, 1);
+                    xCam++;
+                }
+            }
+            while (_Text.DisplayedString.Length != lastLength);
+
+            while (_Text.FindCharacterPos((uint)_Text.DisplayedString.Length).X >= rectangle.Size.X)
+            {
+                _Text.DisplayedString = _Text.DisplayedString.Remove(_Text.DisplayedString.Length - 1, 1);
+            }
+
+            CursorUpdate();
         }
 
         public void KeyboardAction(KeyEventArgs e)
         {
-            int xCam = -1;
             switch (e.Code)
             {
                 case Keyboard.Key.Backspace:
                     if (CursorPos == 0)
                         break;
                     CursorPos--;
-                    xCam = FullText.IndexOf(_Text.DisplayedString);
                     FullText = FullText.Remove((int)CursorPos, 1);
-                    Console.WriteLine(xCam);
+                    if (xCam > 0)
+                        xCam--;
                     break;
                 case Keyboard.Key.Space:
-                    xCam = FullText.IndexOf(_Text.DisplayedString);
                     FullText = FullText.Insert((int)CursorPos, " ");
                     CursorPos++;
                     break;
@@ -144,7 +144,6 @@ namespace GUISFML
                     if (((int)e.Code < 0 || 57 <= (int)e.Code) || ((int)e.Code >= 36 && (int)e.Code <= 45))
                         break;
 
-                    xCam = FullText.IndexOf(_Text.DisplayedString);
                     if (!char.IsLetter(Alphabet[(int)e.Code]))
                         FullText = FullText.Insert((int)CursorPos, e.Shift ? Alphabet[(int)e.Code + ((int)e.Code > 45 ? 11 : 10)].ToString() : Alphabet[(int)e.Code].ToString());
                     else
@@ -154,25 +153,12 @@ namespace GUISFML
                     break;
             }
 
-            //Мне было слишком лень делать всё по нормальному(сделал как смог)  :))
-            Text = FullText;
-            if (_Text.DisplayedString.Length != FullText.Length)
-            {
-                if (xCam != -1)
-                {
-                    if (xCam + _Text.DisplayedString.Length <= FullText.Length)
-                        _Text.DisplayedString = FullText.Substring(xCam, _Text.DisplayedString.Length);
-                    else if (xCam != 0)
-                        _Text.DisplayedString = FullText.Substring(xCam - 1, _Text.DisplayedString.Length);
-                    else
-                        _Text.DisplayedString = FullText.Substring(0, FullText.Length);
-                }
+            if (CursorPos <= xCam && xCam > 0)
+                xCam--;
 
-                if (CursorPos < FullText.IndexOf(_Text.DisplayedString))
-                    _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) - 1, _Text.DisplayedString.Length);
-                else if (CursorPos > FullText.IndexOf(_Text.DisplayedString) + _Text.DisplayedString.Length)
-                    _Text.DisplayedString = FullText.Substring(FullText.IndexOf(_Text.DisplayedString) + 1, _Text.DisplayedString.Length);
-            }
+            UpdateTextElement(xCam);
+
+            Console.WriteLine(xCam);
 
             CursorUpdate();
         }
