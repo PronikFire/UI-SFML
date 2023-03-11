@@ -14,10 +14,17 @@ namespace GUISFML
             get; set;
         }
         public void MouseAction(MouseButtonEventArgs e);
+    }
+
+    public interface KeyboardUsage : GUIObject
+    {
         public void KeyboardAction(KeyEventArgs e);
     }
+
     class Helper
     {
+        //This is to determine which keyboard layout.
+        //The dynamic library user32.dll is used
         [DllImport("user32.dll")]
         private static extern IntPtr GetKeyboardLayout(int idThread);
         [DllImport("user32.dll", SetLastError = true)]
@@ -29,7 +36,7 @@ namespace GUISFML
             return (ushort)GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero));
         }
 
-        //Below is nothing but the alphabet
+        #region Alphabets
         public static char[] AlphabetEN { get; } = {
             'A',
             'B',
@@ -170,5 +177,6 @@ namespace GUISFML
             '+',
             '_'
         };
+        #endregion
     }
 }

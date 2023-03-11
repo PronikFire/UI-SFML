@@ -3,7 +3,7 @@ using SFML.Window;
 
 namespace GUISFML
 {
-    public class InputTextBox : GUIObject
+    public class InputTextBox : GUIObject, KeyboardUsage
     {
         private Text _Text;
         private RectangleShape rectangle;
@@ -45,7 +45,7 @@ namespace GUISFML
             set
             {
                 FullText = value;
-                UpdateTextElement();
+                UpdateText();
             }
         }
         public FloatRect GlobalRect
@@ -88,7 +88,9 @@ namespace GUISFML
             line[1] = new Vertex(new Vector2f(_Text.Position.X + _Text.FindCharacterPos(CursorPos - (uint)xCam).X, rectangle.Position.Y + rectangle.Size.Y - 5), Color.Black);
         }
 
-        private void UpdateTextElement(int start = 0)
+        //This piece of code was taken from another library.
+        //I modified it a little.
+        private void UpdateText(int start = 0)
         {
             _Text.DisplayedString = FullText.Substring(start);
 
@@ -139,7 +141,6 @@ namespace GUISFML
                     CursorPos++;
                     break;
                 default:
-                    Console.WriteLine(CultureInfo.GetCultureInfo(Helper.GetKeyboardLayout()).Name);
                     var Alphabet = CultureInfo.GetCultureInfo(Helper.GetKeyboardLayout()).Name == "ru-RU" ? Helper.AlphabetRU : Helper.AlphabetEN;
                     if (((int)e.Code < 0 || 57 <= (int)e.Code) || ((int)e.Code >= 36 && (int)e.Code <= 45))
                         break;
@@ -156,9 +157,7 @@ namespace GUISFML
             if (CursorPos <= xCam && xCam > 0)
                 xCam--;
 
-            UpdateTextElement(xCam);
-
-            Console.WriteLine(xCam);
+            UpdateText(xCam);
 
             CursorUpdate();
         }

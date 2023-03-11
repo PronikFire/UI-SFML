@@ -1,17 +1,19 @@
-﻿namespace GUISFML
+﻿using System.Net.Http.Headers;
+
+namespace GUISFML
 {
     public class GUI
     {
-        internal static Font Font = null;
+        internal static Font? Font = null;
         public GUI(Font font)
         {
             Font = font;
         }
 
         public List<GUIObject> objects { get; private set; } = new List<GUIObject>();
-        private GUIObject SelectedObject = null;
+        private KeyboardUsage? SelectedObject = null;
 
-        private void MouseBtnPress(object o, MouseButtonEventArgs e)
+        private void MouseBtnPress(object? o, MouseButtonEventArgs e)
         {
             foreach (var obj in objects)
             {
@@ -21,8 +23,9 @@
                         SelectedObject.InFocus = false;
                     obj.InFocus = true;
 
-                    SelectedObject = obj;
                     obj.MouseAction(e);
+                    if (obj is KeyboardUsage keyboardUsage)
+                        SelectedObject = keyboardUsage;
                     return;
                 }
             }
@@ -33,7 +36,7 @@
             }
         }
 
-        private void KeyBoardBtnPress(object o, KeyEventArgs e)
+        private void KeyBoardBtnPress(object? o, KeyEventArgs e)
         {
             if (SelectedObject is null) return;
 
@@ -53,16 +56,26 @@
             }
         }
 
-        public void Delete(GUIObject obj) { objects.Remove(obj); }
-        public void Delete(int index) { objects.RemoveAt(index); }
+        public void Delete(GUIObject obj) 
+        {
+            if (!objects.Contains(obj))
+                throw new Exception("Object not found");
+            if (SelectedObject == obj)
+                SelectedObject = null;
+            objects.Remove(obj);
+        }
+        public void Delete(int index) { Delete(objects[index]); }
         public void Add(GUIObject obj) { objects.Add(obj); }
 
-        public void AttachControl(RenderWindow window)
+        /// <summary>
+        /// This method is needed so that objects can respond to interactions.
+        /// </summary>
+        public void AttachControl(Window window)
         {
             window.MouseButtonPressed += MouseBtnPress;
             window.KeyPressed += KeyBoardBtnPress;
         }
-        public void DetachControl(RenderWindow window)
+        public void DetachControl(Window window)
         {
             window.MouseButtonPressed -= MouseBtnPress;
             window.KeyPressed += KeyBoardBtnPress;
