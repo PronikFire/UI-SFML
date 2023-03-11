@@ -1,7 +1,4 @@
-﻿using SFML.Graphics;
-using SFML.Window;
-
-namespace GUISFML
+﻿namespace GUISFML
 {
     public class InputTextBox : GUIObject, KeyboardUsage
     {
@@ -16,10 +13,7 @@ namespace GUISFML
 
         public Vector2f Position
         {
-            get
-            {
-                return rectangle.Position;
-            }
+            get => rectangle.Position;
             set
             {
                 rectangle.Position = value;
@@ -29,7 +23,7 @@ namespace GUISFML
         }
         public Vector2f Size
         {
-            get { return rectangle.Size; }
+            get => rectangle.Size;
             set
             {
                 rectangle.Size = value;
@@ -38,10 +32,7 @@ namespace GUISFML
         }
         public string Text
         {
-            get
-            {
-                return FullText;
-            }
+            get => FullText;
             set
             {
                 FullText = value;
@@ -50,10 +41,7 @@ namespace GUISFML
         }
         public FloatRect GlobalRect
         {
-            get
-            {
-                return rectangle.GetGlobalBounds();
-            }
+            get => rectangle.GetGlobalBounds();
         }
 
         public InputTextBox(Vector2f size)
