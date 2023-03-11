@@ -1,7 +1,7 @@
-# UI for SFML
-This is an interface to SFML. I am not a professional and this is my first project on github, but I tried to make everything as good as possible. Over time, I will supplement and improve.
+This is my little library for creating an interface in SFML.
+I am aware that such libraries already exist, but they either did not work for me or did not suit me. So I decided to make my own. 
+I'm going to periodically finish and support it, but I don't promise anything
 
-#CURRENTLY DOES NOT WORK NORMALLY
+If you suddenly suddenly decide that my code is shit, I do not blame. I'm not a pro)
 
-PS Нужно сделать так чтобы буквы были внутри бокса, но блять мне так лень. :|
-PPS Это сделать можно но пиздец как некрасиво и мутарно. :||
+What helped me https://github.com/frederikja163/sfml-ui
