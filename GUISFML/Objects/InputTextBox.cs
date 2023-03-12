@@ -8,16 +8,17 @@
         private uint CursorPos = 0;
         private string FullText;
         private int xCam = 0;
+        private Color _Color = Color.White;
+        private uint _Padding = 3;
 
         public bool InFocus { get; set; }
-
         public Vector2f Position
         {
             get => rectangle.Position;
             set
             {
                 rectangle.Position = value;
-                _Text.Position = value + new Vector2f(2, -10);
+                _Text.Position = value + new Vector2f(_Padding, -_Padding);
                 CursorUpdate();
             }
         }
@@ -27,7 +28,7 @@
             set
             {
                 rectangle.Size = value;
-                _Text.CharacterSize = (uint)value.Y;
+                _Text.CharacterSize = (uint)value.Y - _Padding;
             }
         }
         public string Text
@@ -43,25 +44,55 @@
         {
             get => rectangle.GetGlobalBounds();
         }
+        public Color Color
+        {
+            get => _Color;
+            set
+            {
+                _Color = value;
+                rectangle.FillColor = value;
+            }
+        }
+        public string Content { get => _Text.DisplayedString; set => _Text.DisplayedString = value; }
+        public uint CharacterSize { get => _Text.CharacterSize;}
+        public Color CharacterColor { get => _Text.FillColor; set => _Text.FillColor = value; }
+        public uint Padding 
+        { 
+            get => _Padding;
+            set
+            {
+                _Text.CharacterSize += _Padding;
+                _Text.CharacterSize -= value;
+                _Text.Position += new Vector2f(-_Padding, _Padding);
+                _Text.Position += new Vector2f(-value, value);
+                _Padding = value;
+            }
+        }
+
+        public Outline Outline = new ();
 
         public InputTextBox(Vector2f size)
         {
             rectangle = new RectangleShape(size) { FillColor = Color.White };
             if (GUI.Font == null)
                 throw new Exception("Объект был реализован раньше GUI");
-            _Text = new Text(null, GUI.Font) { FillColor = Color.Black, Position = new Vector2f(2, -10), CharacterSize = (uint)size.Y };
+            _Text = new Text(null, GUI.Font) { FillColor = Color.Black, Position = new Vector2f(_Padding, -_Padding), CharacterSize = (uint)size.Y - _Padding };
         }
 
         public void Draw(RenderWindow window)
         {
-            rectangle.Size += new Vector2f(6, 6);
-            rectangle.Position -= new Vector2f(3, 3);
-            rectangle.FillColor = Color.Black;
-            window.Draw(rectangle);
+            if (Outline.Enable)
+            {
+                rectangle.Size += new Vector2f(Outline.Sise, Outline.Sise);
+                rectangle.Position -= new Vector2f(Outline.Sise, Outline.Sise) / 2; 
+                rectangle.FillColor = Outline.Color;
+                window.Draw(rectangle);
 
-            rectangle.Size -= new Vector2f(6, 6);
-            rectangle.Position += new Vector2f(3, 3);
-            rectangle.FillColor = Color.White;
+                rectangle.Size -= new Vector2f(Outline.Sise, Outline.Sise);
+                rectangle.Position += new Vector2f(Outline.Sise, Outline.Sise) / 2;
+                rectangle.FillColor = _Color;
+            }
+
             window.Draw(rectangle);
 
             window.Draw(_Text);
@@ -157,7 +188,7 @@
 
             if (e.X >= _Text.Position.X + (_Text.FindCharacterPos((uint)_Text.DisplayedString.Length).X + _Text.FindCharacterPos((uint)_Text.DisplayedString.Length - 1).X) / 2)
             {
-                CursorPos = (uint)_Text.DisplayedString.Length + (uint)FullText.IndexOf(_Text.DisplayedString);
+                CursorPos = (uint)(_Text.DisplayedString.Length + xCam);
             }
             else
             {
@@ -165,7 +196,7 @@
                 {
                     if ((i == 1 ? _Text.Position.X : _Text.Position.X + (_Text.FindCharacterPos(i - 1).X + _Text.FindCharacterPos(i - 2).X) / 2) <= e.X
                         && e.X < _Text.Position.X + (_Text.FindCharacterPos(i).X + _Text.FindCharacterPos(i - 1).X) / 2)
-                        CursorPos = i - 1 + (uint)FullText.IndexOf(_Text.DisplayedString);
+                        CursorPos = i - 1 + (uint)xCam;
                 }
             }
             CursorUpdate();

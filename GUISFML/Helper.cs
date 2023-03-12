@@ -21,6 +21,13 @@ namespace GUISFML
         public void KeyboardAction(KeyEventArgs e);
     }
 
+    public class Outline
+    {
+        public bool Enable = true;
+        public Color Color = Color.Black;
+        public float Sise = 5;
+    }
+
     class Helper
     {
         //This is to determine which keyboard layout.
