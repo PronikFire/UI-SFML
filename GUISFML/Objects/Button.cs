@@ -12,13 +12,22 @@
 
         public bool InFocus { get; set; }
 
-        public string Text
+        public string Content
         { 
             get => _Text.DisplayedString;
             set 
             { 
                 _Text.DisplayedString = value;
                 _Text.Position = new(rectangle.Position.X + rectangle.Size.X / 2  - _Text.GetGlobalBounds().Width / 2, rectangle.Position.Y + rectangle.Size.Y / 2  - _Text.GetGlobalBounds().Height);
+            }
+        }
+        public uint CharacterSize
+        { 
+            get => _Text.CharacterSize;
+            set
+            {
+                _Text.CharacterSize = value;
+                _Text.Position = new(rectangle.Position.X + rectangle.Size.X / 2 - _Text.GetGlobalBounds().Width / 2, rectangle.Position.Y + rectangle.Size.Y / 2 - _Text.GetGlobalBounds().Height);
             }
         }
         public FloatRect GlobalRect { get => rectangle.GetGlobalBounds(); }
@@ -32,7 +41,7 @@
             }
         }
         public Color Color { get => rectangle.FillColor; set => rectangle.FillColor = value; }
-        public uint CharacterSize { get => _Text.CharacterSize; set => _Text.CharacterSize = value; }
+        public Color CharacterColor { get => _Text.FillColor; set => _Text.FillColor = value; }
 
         public void Draw(RenderWindow window)
         {

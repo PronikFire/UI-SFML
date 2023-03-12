@@ -13,7 +13,7 @@ namespace GUISFML
         public List<GUIObject> objects { get; private set; } = new List<GUIObject>();
         private KeyboardUsage? SelectedObject = null;
 
-        private void MouseBtnPress(object? o, MouseButtonEventArgs e)
+        private async void MouseBtnPress(object? o, MouseButtonEventArgs e)
         {
             foreach (var obj in objects)
             {
@@ -23,7 +23,7 @@ namespace GUISFML
                         SelectedObject.InFocus = false;
                     obj.InFocus = true;
 
-                    obj.MouseAction(e);
+                    await Task.Run(() => obj.MouseAction(e));
                     if (obj is KeyboardUsage keyboardUsage)
                         SelectedObject = keyboardUsage;
                     return;
